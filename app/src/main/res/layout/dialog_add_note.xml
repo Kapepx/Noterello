@@ -70,54 +70,31 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <RadioGroup
-            android:id="@+id/rgColors"
+        <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:scrollbars="none">
 
-            <RadioButton
-                android:id="@+id/color1"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#FFF9C4"
-                android:button="@null"
-                android:checked="true" />
+            <RadioGroup
+                android:id="@+id/rgColors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-            <RadioButton
-                android:id="@+id/color2"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#C8E6C9"
-                android:button="@null" />
+                <RadioButton android:id="@+id/color1" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#FFF9C4" android:button="@null" android:checked="true" />
+                <RadioButton android:id="@+id/color2" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#C8E6C9" android:button="@null" />
+                <RadioButton android:id="@+id/color3" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#FFCCBC" android:button="@null" />
+                <RadioButton android:id="@+id/color4" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#B3E5FC" android:button="@null" />
+                <RadioButton android:id="@+id/color5" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#D1C4E9" android:button="@null" />
+                <RadioButton android:id="@+id/color6" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#F8BBD0" android:button="@null" />
+                <RadioButton android:id="@+id/color7" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#B2EBF2" android:button="@null" />
+                <RadioButton android:id="@+id/color8" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#DCEDC8" android:button="@null" />
+                <RadioButton android:id="@+id/color9" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#FFE0B2" android:button="@null" />
+                <RadioButton android:id="@+id/color10" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#CFD8DC" android:button="@null" />
 
-            <RadioButton
-                android:id="@+id/color3"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#FFCCBC"
-                android:button="@null" />
-
-            <RadioButton
-                android:id="@+id/color4"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#B3E5FC"
-                android:button="@null" />
-
-            <RadioButton
-                android:id="@+id/color5"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#D1C4E9"
-                android:button="@null" />
-        </RadioGroup>
+            </RadioGroup>
+        </HorizontalScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
