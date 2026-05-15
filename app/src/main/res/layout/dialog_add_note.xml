@@ -1,216 +1,373 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/outerCardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="24dp"
-    app:cardElevation="0dp">
+    app:cardElevation="0dp"
+    app:contentPadding="10dp">
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/dialogCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        app:cardBackgroundColor="#FFF9C4"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp">
 
-        <RelativeLayout
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:fadeScrollbars="false"
+            android:fillViewport="true">
 
-            <TextView
-                android:id="@+id/tvDialogTitle"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Note"
-                android:textColor="#333333"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:padding="20dp">
 
-            <ImageView
-                android:id="@+id/btnClose"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_alignParentEnd="true"
-                android:src="@android:drawable/ic_menu_close_clear_cancel"
-                app:tint="#666666" />
-        </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
 
-        <EditText
-            android:id="@+id/etNoteTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FFF9C4"
-            android:hint="Title"
-            android:padding="16dp"
-            android:textColor="#333333"
-            android:textColorHint="#757575"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp"/>
+                    <TextView
+                        android:id="@+id/tvDialogTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Note"
+                        android:textColor="#333333"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/etNoteContent"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:background="#FFF9C4"
-            android:gravity="top"
-            android:hint="Type your note here..."
-            android:padding="16dp"
-            android:textColor="#333333"
-            android:textColorHint="#757575"
-            android:textSize="16sp" />
+                    <ImageView
+                        android:id="@+id/btnClose"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:src="@android:drawable/ic_menu_close_clear_cancel"
+                        app:tint="#666666" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Note Color"
-            android:textColor="#333333"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/btnEditNote"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_toStartOf="@id/btnClose"
+                        android:layout_marginEnd="16dp"
+                        android:src="@android:drawable/ic_menu_edit"
+                        app:tint="#666666"
+                        android:visibility="gone" />
 
-        <RadioGroup
-            android:id="@+id/rgColors"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/btnViewNote"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_toStartOf="@id/btnClose"
+                        android:layout_marginEnd="16dp"
+                        android:src="@android:drawable/ic_menu_view"
+                        app:tint="#666666"
+                        android:visibility="gone" />
+                </RelativeLayout>
 
-            <RadioButton
-                android:id="@+id/color1"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#FFF9C4"
-                android:button="@null"
-                android:checked="true" />
+                <EditText
+                    android:id="@+id/etNoteTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:hint="Title"
+                    android:padding="16dp"
+                    android:textColor="#333333"
+                    android:textColorHint="#757575"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
-            <RadioButton
-                android:id="@+id/color2"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#C8E6C9"
-                android:button="@null" />
+                <EditText
+                    android:id="@+id/etNoteContent"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:minHeight="180dp"
+                    android:background="@android:color/transparent"
+                    android:gravity="top"
+                    android:hint="Type your note here..."
+                    android:padding="16dp"
+                    android:textColor="#333333"
+                    android:textColorHint="#757575"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/cause" />
 
-            <RadioButton
-                android:id="@+id/color3"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#FFCCBC"
-                android:button="@null" />
+                <LinearLayout
+                    android:id="@+id/layoutChecklist"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp">
 
-            <RadioButton
-                android:id="@+id/color4"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#B3E5FC"
-                android:button="@null" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvChecklistItems"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false" />
 
-            <RadioButton
-                android:id="@+id/color5"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:background="#D1C4E9"
-                android:button="@null" />
-        </RadioGroup>
+                    <Button
+                        android:id="@+id/btnAddChecklistItem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Add item"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:textColor="#FF6D00" />
+                </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp"
-            android:gravity="center_vertical">
+                <LinearLayout
+                    android:id="@+id/layoutImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Note Size"
-                android:textColor="#333333"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/ivNoteImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:scaleType="centerCrop"
+                        android:background="#EEEEEE"
+                        android:src="@android:drawable/ic_menu_gallery" />
 
-            <CheckBox
-                android:id="@+id/cbPinned"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pin note"
-                android:textColor="#333333"
-                android:textSize="14sp" />
-        </LinearLayout>
+                    <Button
+                        android:id="@+id/btnPickImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select Image"
+                        android:layout_marginTop="8dp"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:textColor="#FF6D00" />
+                </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/sizeContainer"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="8dp"
-            android:background="#E0E0E0"
-            android:orientation="horizontal"
-            android:padding="2dp">
+                <LinearLayout
+                    android:id="@+id/llEditControls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-            <ToggleButton
-                android:id="@+id/btnSizeSquare"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="#FFFFFF"
-                android:checked="true"
-                android:textOff="Square"
-                android:textOn="Square"
-                android:textColor="#333333"
-                android:textAllCaps="false" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Note type:"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:layout_marginTop="16dp" />
 
-            <ToggleButton
-                android:id="@+id/btnSizeRectangle"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@android:color/transparent"
-                android:textOff="Rectangle"
-                android:textOn="Rectangle"
-                android:textColor="#333333"
-                android:textAllCaps="false" />
-        </LinearLayout>
+                    <RadioGroup
+                        android:id="@+id/rgNoteType"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp">
+                        <RadioButton
+                            android:id="@+id/rbTypePlain"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Plain"
+                            android:checked="true"
+                            android:button="@null"
+                            android:textColor="#000000"
+                            android:background="@drawable/bg_role_border"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:layout_marginEnd="4dp" />
 
-            <ImageView
-                android:id="@+id/btnGallery"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:src="@android:drawable/ic_menu_gallery"
-                app:tint="#666666" />
+                        <RadioButton
+                            android:id="@+id/rbTypeChecklist"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Checklist"
+                            android:button="@null"
+                            android:textColor="#000000"
+                            android:background="@drawable/bg_role_border"
+                            android:gravity="center"
+                            android:padding="8dp"
+                            android:layout_marginEnd="4dp" />
 
-            <ImageView
-                android:id="@+id/btnDeleteNote"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:layout_toEndOf="@id/btnGallery"
-                android:src="@android:drawable/ic_menu_delete"
-                android:visibility="gone"
-                app:tint="#FF5252" />
+                        <RadioButton
+                            android:id="@+id/rbTypeImage"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Image"
+                            android:button="@null"
+                            android:textColor="#000000"
+                            android:background="@drawable/bg_role_border"
+                            android:gravity="center"
+                            android:padding="8dp" />
+                    </RadioGroup>
 
-            <Button
-                android:id="@+id/btnAdd"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:backgroundTint="#FF6D00"
-                android:text="Save"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF" />
-        </RelativeLayout>
+                    <LinearLayout
+                        android:id="@+id/layoutReminder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical">
 
-    </LinearLayout>
+                        <Button
+                            android:id="@+id/btnSetReminder"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Set Deadline"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:textColor="#FF6D00"
+                            app:strokeColor="#000000"
+                            app:strokeWidth="1dp" />
+
+                        <Button
+                            android:id="@+id/btnDone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mark as Done"
+                            android:visibility="gone"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:textColor="#4CAF50" />
+
+                        <TextView
+                            android:id="@+id/tvReminderValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="No reminder"
+                            android:textColor="#666666" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:text="Note Color"
+                        android:textColor="#333333"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:scrollbars="none">
+
+                        <RadioGroup
+                            android:id="@+id/rgColors"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <RadioButton android:id="@+id/color1" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#FFF9C4" android:button="@null" android:checked="true" />
+                            <RadioButton android:id="@+id/color2" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#C8E6C9" android:button="@null" />
+                            <RadioButton android:id="@+id/color3" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#FFCCBC" android:button="@null" />
+                            <RadioButton android:id="@+id/color4" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#B3E5FC" android:button="@null" />
+                            <RadioButton android:id="@+id/color5" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#D1C4E9" android:button="@null" />
+                            <RadioButton android:id="@+id/color6" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#F8BBD0" android:button="@null" />
+                            <RadioButton android:id="@+id/color7" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#B2EBF2" android:button="@null" />
+                            <RadioButton android:id="@+id/color8" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#DCEDC8" android:button="@null" />
+                            <RadioButton android:id="@+id/color9" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#FFE0B2" android:button="@null" />
+                            <RadioButton android:id="@+id/color10" android:layout_width="40dp" android:layout_height="40dp" android:layout_marginEnd="12dp" android:background="#CFD8DC" android:button="@null" />
+
+                        </RadioGroup>
+                    </HorizontalScrollView>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="20dp"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Note Size"
+                            android:textColor="#333333"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <CheckBox
+                            android:id="@+id/cbPinned"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Pin note"
+                            android:textColor="#333333"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/sizeContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="8dp"
+                        android:background="#E0E0E0"
+                        android:orientation="horizontal"
+                        android:padding="2dp">
+
+                        <ToggleButton
+                            android:id="@+id/btnSizeSquare"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="#FFFFFF"
+                            android:checked="true"
+                            android:textOff="Square"
+                            android:textOn="Square"
+                            android:textColor="#333333"
+                            android:textAllCaps="false" />
+
+                        <ToggleButton
+                            android:id="@+id/btnSizeRectangle"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@android:color/transparent"
+                            android:textOff="Rectangle"
+                            android:textOn="Rectangle"
+                            android:textColor="#333333"
+                            android:textAllCaps="false" />
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp">
+
+                        <ImageView
+                            android:id="@+id/btnDeleteNote"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/ic_menu_delete"
+                            android:visibility="gone"
+                            app:tint="#FF5252" />
+
+                        <Button
+                            android:id="@+id/btnAdd"
+                            android:layout_width="120dp"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:backgroundTint="#FF6D00"
+                            android:text="Save"
+                            android:textAllCaps="false"
+                            android:textColor="#FFFFFF" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.cardview.widget.CardView>
 </androidx.cardview.widget.CardView>

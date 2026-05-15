@@ -23,8 +23,29 @@
             android:textColor="#333333"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/ivPin"
+            app:layout_constraintEnd_toStartOf="@id/ivReminder"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/ivReminder"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="4dp"
+            android:src="@android:drawable/ic_lock_idle_alarm"
+            app:tint="#757575"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/ivPin"
+            app:layout_constraintTop_toTopOf="parent" />
+        <ImageView
+            android:id="@+id/ivCompleted"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_done"
+            app:tint="#4CAF50"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/ivPin"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -46,10 +67,23 @@
             android:text="Treść notatki..."
             android:textColor="#666666"
             android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNoteTitle"
+            android:fontFamily="@font/cause"/>
+
+        <ImageView
+            android:id="@+id/ivNotePicture"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvNoteTitle" />
+            app:layout_constraintTop_toBottomOf="@id/tvNoteContent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

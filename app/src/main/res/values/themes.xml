@@ -1,8 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.Noterello" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
     </style>
 
     <style name="Theme.Noterello" parent="Base.Theme.Noterello" />
@@ -20,4 +18,11 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
+
+    <style name="SlowDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up_slow</item>
+        <item name="android:windowExitAnimation">@anim/slide_down_slow</item>
+    </style>
+
+
 </resources>
