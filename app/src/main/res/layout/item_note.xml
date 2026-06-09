@@ -11,50 +11,57 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp">
+        android:padding="12dp"
+        android:minHeight="100dp">
+
+        <LinearLayout
+            android:id="@+id/llIcons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/ivReminder"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="4dp"
+                android:src="@android:drawable/ic_lock_idle_alarm"
+                app:tint="#757575"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/ivCompleted"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/ic_done"
+                app:tint="#4CAF50"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/ivPin"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/btn_star_big_on"
+                android:visibility="gone" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvNoteTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:text="Tytuł notatki"
             android:textColor="#333333"
             android:textSize="16sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/ivReminder"
+            app:layout_constraintEnd_toStartOf="@id/llIcons"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/ivReminder"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="4dp"
-            android:src="@android:drawable/ic_lock_idle_alarm"
-            app:tint="#757575"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@id/ivPin"
-            app:layout_constraintTop_toTopOf="parent" />
-        <ImageView
-            android:id="@+id/ivCompleted"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_marginEnd="4dp"
-            android:src="@drawable/ic_done"
-            app:tint="#4CAF50"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@id/ivPin"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/ivPin"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/btn_star_big_on"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

@@ -91,9 +91,9 @@ public class BoardSelectionActivity extends AppCompatActivity {
                     if (documentSnapshot != null && documentSnapshot.exists()) {
                         String username = documentSnapshot.getString("username");
                         if (username != null && !username.isEmpty()) {
-                            tvUsername.setText("Witaj, " + username);
+                            tvUsername.setText("Hello, " + username);
                         } else {
-                            tvUsername.setText("Witaj!");
+                            tvUsername.setText("Hello!");
                         }
 
                         String bg = documentSnapshot.getString("mainBackground");
@@ -120,16 +120,16 @@ public class BoardSelectionActivity extends AppCompatActivity {
 
         btnLogout.setOnClickListener(v -> {
             new AlertDialog.Builder(BoardSelectionActivity.this)
-                    .setTitle("Wyloguj")
-                    .setMessage("Czy na pewno chcesz się wylogować?")
-                    .setPositiveButton("Wyloguj", (dialog, which) -> {
+                    .setTitle("Logout")
+                    .setMessage("Are you sure you want to log out?")
+                    .setPositiveButton("log out", (dialog, which) -> {
                         mAuth.signOut();
                         Intent intent = new Intent(BoardSelectionActivity.this, LoginActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
-                        Toast.makeText(BoardSelectionActivity.this, "Wylogowano", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BoardSelectionActivity.this, "Logged out", Toast.LENGTH_SHORT).show();
                     })
-                    .setNegativeButton("Anuluj", null)
+                    .setNegativeButton("Cancel", null)
                     .show();
         });
 
@@ -382,15 +382,15 @@ public class BoardSelectionActivity extends AppCompatActivity {
                     db.collection("users").document(currentUserId).collection("boards")
                             .add(newBoard)
                             .addOnSuccessListener(documentReference -> {
-                                Toast.makeText(this, "Tablica zapisana!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Created a board!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             })
-                            .addOnFailureListener(e -> Toast.makeText(this, "Błąd zapisu", Toast.LENGTH_SHORT).show());
+                            .addOnFailureListener(e -> Toast.makeText(this, "Failed to create", Toast.LENGTH_SHORT).show());
                 } else {
                     db.collection("users").document(currentUserId).collection("boards").document(boardToEdit.getId())
                             .update("name", title, "color", color)
                             .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Zaktualizowano tablicę!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Board updated!", Toast.LENGTH_SHORT).show();
                                 dialog.dismiss();
                             });
                 }

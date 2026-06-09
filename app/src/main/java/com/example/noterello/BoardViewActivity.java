@@ -8,11 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,6 +80,67 @@ public class BoardViewActivity extends AppCompatActivity {
     private String currentUserRole = "Viewer";
     private TextView tvEmptyState;
     private ImageView ivEmptyStateArrow;
+
+    private View rootLayoutBoardView;
+
+    private void listenToBoardDetails() {
+        db.collection("users").document(ownerId).collection("boards").document(boardId)
+                .addSnapshotListener((documentSnapshot, e) -> {
+                    if (e != null) return;
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        String bg = documentSnapshot.getString("boardBackground");
+                        if (bg != null) {
+                            applyBoardBackground(bg);
+                        } else {
+                            applyBoardBackground("default"); // Default color
+                        }
+                    }
+                });
+    }
+
+    private void applyBoardBackground(String bgType) {
+        if (rootLayoutBoardView == null) return;
+
+        switch (bgType) {
+            case "midnight":
+                rootLayoutBoardView.setBackgroundColor(Color.parseColor("#121212"));
+                tvBoardName.setTextColor(Color.WHITE);
+                break;
+            case "blueprint":
+                rootLayoutBoardView.setBackgroundColor(Color.parseColor("#1976D2"));
+                tvBoardName.setTextColor(Color.WHITE);
+                break;
+            case "pastel1":
+                rootLayoutBoardView.setBackgroundResource(R.drawable.pastel1);
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+            case "pastel2":
+                rootLayoutBoardView.setBackgroundResource(R.drawable.pastel2);
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+            case "pastel3":
+                rootLayoutBoardView.setBackgroundResource(R.drawable.pastel3);
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+            case "pastel4":
+                rootLayoutBoardView.setBackgroundResource(R.drawable.pastel4);
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+            case "pastel5":
+                rootLayoutBoardView.setBackgroundResource(R.drawable.pastel5);
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+            case "pastel6":
+                rootLayoutBoardView.setBackgroundResource(R.drawable.pastel6); // <-- Tutaj poprawione na pastel6
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+            default:
+                rootLayoutBoardView.setBackgroundColor(Color.parseColor("#F5F5F5"));
+                tvBoardName.setTextColor(Color.parseColor("#333333"));
+                break;
+        }
+    }
+
     private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
             new ActivityResultContracts.RequestPermission(),
             isGranted -> {
@@ -104,6 +165,7 @@ public class BoardViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_board_view);
+        rootLayoutBoardView = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
 
         tvBoardName = findViewById(R.id.tvBoardName);
         rvNotes = findViewById(R.id.rvNotes);
@@ -138,6 +200,9 @@ public class BoardViewActivity extends AppCompatActivity {
         ownerId = getIntent().getStringExtra("OWNER_ID");
         pendingNoteToOpen = getIntent().getStringExtra("OPEN_NOTE_ID");
 
+
+
+
         if (ownerId == null || ownerId.isEmpty()) {
             ownerId = currentUserId;
         }
@@ -160,12 +225,14 @@ public class BoardViewActivity extends AppCompatActivity {
         if (boardId != null) {
             loadRoleAndNotes();
             loadBoardMembersAvatars();
+            listenToBoardDetails();
         }
 
         fabAddNote.setOnClickListener(v -> showNoteDialog(null));
         btnShareBoard.setOnClickListener(v -> showShareDialog());
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         llAvatars.setOnClickListener(v -> showShareDialog());
+        tvBoardName.setOnClickListener(v -> showShareDialog());
 
         EditText etSearch = findViewById(R.id.etSearch);
         ImageView ivSearch = findViewById(R.id.ivSearch);
@@ -301,10 +368,14 @@ public class BoardViewActivity extends AppCompatActivity {
                         if (llAvatars.getChildCount() > 1) llAvatars.removeViews(1, llAvatars.getChildCount() - 1);
                         if (value != null) {
                             for (QueryDocumentSnapshot doc : value) {
-                                db.collection("users").whereEqualTo("email", doc.getString("toUserEmail")).get()
-                                        .addOnSuccessListener(userSnaps -> {
-                                            if (!userSnaps.isEmpty()) addAvatarToHeader(userSnaps.getDocuments().get(0).toObject(User.class));
-                                        });
+                                String toEmail = doc.getString("toUserEmail");
+                                // Bezpiecznik: sprawdzamy czy mail na pewno istnieje
+                                if (toEmail != null && !toEmail.isEmpty()) {
+                                    db.collection("users").whereEqualTo("email", toEmail).get()
+                                            .addOnSuccessListener(userSnaps -> {
+                                                if (!userSnaps.isEmpty()) addAvatarToHeader(userSnaps.getDocuments().get(0).toObject(User.class));
+                                            });
+                                }
                             }
                         }
                     });
@@ -312,8 +383,9 @@ public class BoardViewActivity extends AppCompatActivity {
     }
 
     private void addAvatarToHeader(User user) {
+        if (user == null) return;
         TextView tv = new TextView(this);
-        tv.setText(user.getInitials());
+        tv.setText(user.getInitials() != null ? user.getInitials() : "?");
         tv.setTextColor(Color.WHITE);
         tv.setTextSize(12);
         tv.setGravity(android.view.Gravity.CENTER);
@@ -325,7 +397,14 @@ public class BoardViewActivity extends AppCompatActivity {
         tv.setLayoutParams(params);
         android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
         shape.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-        shape.setColor(Color.parseColor(user.getAvatarColor()));
+
+        // Zabezpieczenie przed błędem parsowania pustego koloru
+        try {
+            shape.setColor(Color.parseColor(user.getAvatarColor()));
+        } catch (Exception e) {
+            shape.setColor(Color.parseColor("#448AFF")); // Domyślny niebieski
+        }
+
         shape.setStroke((int) (2 * getResources().getDisplayMetrics().density), Color.parseColor("#FFFFFF"));
         tv.setBackground(shape);
         llAvatars.addView(tv);
@@ -474,39 +553,69 @@ public class BoardViewActivity extends AppCompatActivity {
         }
         newList.addAll(normalNotes);
 
-        androidx.recyclerview.widget.DiffUtil.DiffResult diffResult = androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() { return displayList.size(); }
-            @Override
-            public int getNewListSize() { return newList.size(); }
-            @Override
-            public boolean areItemsTheSame(int oldPos, int newPos) {
-                Object o = displayList.get(oldPos), n = newList.get(newPos);
-                if (o instanceof Note && n instanceof Note) return ((Note) o).getId().equals(((Note) n).getId());
-                return o.equals(n);
+        // Wykryj czy zmienił się zestaw przypiętych notatek
+        java.util.Set<String> oldPinnedIds = new java.util.HashSet<>();
+        for (Object o : displayList) {
+            if (o instanceof Note && ((Note) o).isPinned()) {
+                oldPinnedIds.add(((Note) o).getId());
             }
-            @Override
-            public boolean areContentsTheSame(int oldPos, int newPos) {
-                Object o = displayList.get(oldPos), n = newList.get(newPos);
-                if (o instanceof Note && n instanceof Note) {
-                    Note on = (Note) o, nn = (Note) n;
-                    return String.valueOf(on.getTitle()).equals(String.valueOf(nn.getTitle())) &&
-                            String.valueOf(on.getContent()).equals(String.valueOf(nn.getContent())) &&
-                            String.valueOf(on.getColor()).equals(String.valueOf(nn.getColor())) &&
-                            on.isPinned() == nn.isPinned() &&
-                            on.isFullWidth() == nn.isFullWidth() &&
-                            on.getDeadline() == nn.getDeadline() &&
-                            on.isCompleted() == nn.isCompleted() &&
-                            String.valueOf(on.getType()).equals(String.valueOf(nn.getType())) &&
-                            String.valueOf(on.getImageUrl()).equals(String.valueOf(nn.getImageUrl())) &&
-                            String.valueOf(on.getChecklist()).equals(String.valueOf(nn.getChecklist()));
-                }
-                return o.equals(n);
+        }
+        java.util.Set<String> newPinnedIds = new java.util.HashSet<>();
+        for (Note n : pinnedNotes) {
+            newPinnedIds.add(n.getId());
+        }
+        boolean pinnedChanged = !oldPinnedIds.equals(newPinnedIds);
+
+        if (pinnedChanged) {
+            // Pełne odświeżenie – omijamy animację DiffUtil która dezorientuje SGLM
+            displayList.clear();
+            displayList.addAll(newList);
+            adapter.notifyDataSetChanged();
+            StaggeredGridLayoutManager lm = (StaggeredGridLayoutManager) rvNotes.getLayoutManager();
+            if (lm != null) {
+                // Post – czekamy aż RecyclerView przetworzy notifyDataSetChanged
+                rvNotes.post(() -> lm.invalidateSpanAssignments());
             }
-        });
-        displayList.clear();
-        displayList.addAll(newList);
-        diffResult.dispatchUpdatesTo(adapter);
+        } else {
+            // Normalny tryb z DiffUtil (bez zmiany pinned – kolejność kolumn bezpieczna)
+            androidx.recyclerview.widget.DiffUtil.DiffResult diffResult =
+                    androidx.recyclerview.widget.DiffUtil.calculateDiff(new androidx.recyclerview.widget.DiffUtil.Callback() {
+                        @Override public int getOldListSize() { return displayList.size(); }
+                        @Override public int getNewListSize() { return newList.size(); }
+                        @Override
+                        public boolean areItemsTheSame(int oldPos, int newPos) {
+                            Object o = displayList.get(oldPos), n = newList.get(newPos);
+                            if (o instanceof Note && n instanceof Note)
+                                return ((Note) o).getId().equals(((Note) n).getId());
+                            return o.equals(n);
+                        }
+                        @Override
+                        public boolean areContentsTheSame(int oldPos, int newPos) {
+                            Object o = displayList.get(oldPos), n = newList.get(newPos);
+                            if (o instanceof Note && n instanceof Note) {
+                                Note on = (Note) o, nn = (Note) n;
+                                return String.valueOf(on.getTitle()).equals(String.valueOf(nn.getTitle())) &&
+                                        String.valueOf(on.getContent()).equals(String.valueOf(nn.getContent())) &&
+                                        String.valueOf(on.getColor()).equals(String.valueOf(nn.getColor())) &&
+                                        on.isPinned() == nn.isPinned() &&
+                                        on.isFullWidth() == nn.isFullWidth() &&
+                                        on.getDeadline() == nn.getDeadline() &&
+                                        on.isCompleted() == nn.isCompleted() &&
+                                        String.valueOf(on.getType()).equals(String.valueOf(nn.getType())) &&
+                                        String.valueOf(on.getImageUrl()).equals(String.valueOf(nn.getImageUrl())) &&
+                                        String.valueOf(on.getChecklist()).equals(String.valueOf(nn.getChecklist()));
+                            }
+                            return o.equals(n);
+                        }
+                    });
+            displayList.clear();
+            displayList.addAll(newList);
+            diffResult.dispatchUpdatesTo(adapter);
+            StaggeredGridLayoutManager lm = (StaggeredGridLayoutManager) rvNotes.getLayoutManager();
+            if (lm != null) {
+                lm.invalidateSpanAssignments();
+            }
+        }
 
         if (tvEmptyState != null && ivEmptyStateArrow != null) {
             if (rawNotesList.isEmpty()) {
@@ -517,7 +626,6 @@ public class BoardViewActivity extends AppCompatActivity {
                 ivEmptyStateArrow.setVisibility(View.GONE);
             }
         }
-
     }
 
     private void showNoteDialog(final Note noteToEdit) {
@@ -527,7 +635,7 @@ public class BoardViewActivity extends AppCompatActivity {
         final View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_note, null);
         android.util.DisplayMetrics displayMetrics = new android.util.DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        final int targetHeight = (int) (displayMetrics.heightPixels * 0.80);
+        final int targetHeight = (int) (displayMetrics.heightPixels * 0.95);
 
         builder.setView(view);
         final androidx.cardview.widget.CardView outerCardView = view.findViewById(R.id.outerCardView);
@@ -560,13 +668,37 @@ public class BoardViewActivity extends AppCompatActivity {
         currentImageBase64 = "";
         currentDialogImageView = ivNoteImage;
 
+        ivNoteImage.setOnClickListener(v -> {
+            if (!isEditMode[0] && currentImageBase64 != null && !currentImageBase64.isEmpty()) {
+                try {
+                    byte[] dec = Base64.decode(currentImageBase64, Base64.DEFAULT);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(dec, 0, dec.length);
+                    showFullscreenImageDialog(decodedByte);
+                } catch (Exception e) { e.printStackTrace(); }
+            }
+        });
+
         final AlertDialog dialog = builder.create();
 
         List<ChecklistItem> currentChecklist = new ArrayList<>();
         if (noteToEdit != null && noteToEdit.getChecklist() != null) {
             currentChecklist.addAll(noteToEdit.getChecklist());
         }
-        ChecklistDialogAdapter checklistAdapter = new ChecklistDialogAdapter(currentChecklist, isEditMode[0]);
+
+
+        boolean userCanEdit = !currentUserRole.equals("Viewer");
+
+        Runnable autoSaveChecklist = () -> {
+            if (noteToEdit != null) {
+                db.collection("users").document(ownerId).collection("boards").document(boardId)
+                        .collection("notes").document(noteToEdit.getId())
+                        .update("checklist", currentChecklist);
+            }
+        };
+
+        ChecklistDialogAdapter checklistAdapter = new ChecklistDialogAdapter(currentChecklist, isEditMode[0], userCanEdit, autoSaveChecklist);
+
+
         rvChecklistItems.setLayoutManager(new LinearLayoutManager(this));
         rvChecklistItems.setAdapter(checklistAdapter);
 
@@ -624,11 +756,17 @@ public class BoardViewActivity extends AppCompatActivity {
 
         Runnable updateViewMode = () -> {
             int padding10dp = (int) (10 * getResources().getDisplayMetrics().density);
+            // Zmienna dla zmniejszonych, bocznych marginesów wewnętrznych
+            int paddingWider = (int) (4 * getResources().getDisplayMetrics().density);
             Window window = dialog.getWindow();
+
             if (isEditMode[0]) {
                 outerCardView.setContentPadding(0, 0, 0, 0);
-                view.setMinimumHeight(0);
-                if (window != null && dialog.isShowing()) window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                if (window != null) {
+                    window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                    window.setGravity(android.view.Gravity.BOTTOM);
+                    window.getDecorView().setPadding(0, 0, 0, 0);
+                }
                 btnViewNote.setVisibility(View.VISIBLE);
                 btnEditNote.setVisibility(View.GONE);
                 dialogCardView.setCardBackgroundColor(Color.WHITE);
@@ -642,16 +780,25 @@ public class BoardViewActivity extends AppCompatActivity {
                 etTitle.setFocusable(true);
                 etContent.setFocusableInTouchMode(true);
                 etContent.setFocusable(true);
+
+                // Tryb edycji: pokazujemy pole tekstowe tytułu, nagłówek staje się statyczny
+                etTitle.setVisibility(View.VISIBLE);
+                tvDialogTitle.setText(noteToEdit != null ? "Edit Note" : "New Note");
+
                 if (noteToEdit != null) {
-                    tvDialogTitle.setText("Edit Note");
                     if (currentUserRole.equals("Admin")) btnDelete.setVisibility(View.VISIBLE);
                 }
                 checklistAdapter.setEditMode(true);
                 updateColorCheckmark.run();
             } else {
-                outerCardView.setContentPadding(padding10dp, padding10dp, padding10dp, padding10dp);
-                view.setMinimumHeight(targetHeight);
-                if (window != null && dialog.isShowing()) window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, targetHeight);
+                // POPRAWKA: Zastosowanie mniejszych marginesów bocznych (paddingWider)
+                outerCardView.setContentPadding(paddingWider, padding10dp, paddingWider, padding10dp);
+                if (window != null) {
+                    window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                    window.setGravity(android.view.Gravity.CENTER);
+                    // POPRAWKA: Usunięcie bocznych marginesów systemowych okna (0 zamiast 32)
+                    window.getDecorView().setPadding(0, 32, 0, 32);
+                }
                 btnViewNote.setVisibility(View.GONE);
                 btnEditNote.setVisibility(currentUserRole.equals("Viewer") ? View.GONE : View.VISIBLE);
                 String noteColor = (noteToEdit != null) ? noteToEdit.getColor() : getSelectedColor(rgColors);
@@ -664,6 +811,11 @@ public class BoardViewActivity extends AppCompatActivity {
                 etTitle.setFocusable(false);
                 etContent.setFocusable(false);
                 checklistAdapter.setEditMode(false);
+
+                // Tryb podglądu: ukrywamy pole edycji tytułu, tytuł "wskakuje" w miejsce nagłówka
+                etTitle.setVisibility(View.GONE);
+                String currentTitle = etTitle.getText().toString().trim();
+                tvDialogTitle.setText(currentTitle.isEmpty() ? "Untitled" : currentTitle);
             }
         };
 
@@ -756,22 +908,16 @@ public class BoardViewActivity extends AppCompatActivity {
         updateViewMode.run();
 
         btnSave.setOnClickListener(v -> {
-            String title = etTitle.getText().toString();
-            String content = etContent.getText().toString();
+            String title = etTitle.getText().toString().trim();
+            String content = etContent.getText().toString().trim();
             String type = "plain";
+
             if (rgNoteType.getCheckedRadioButtonId() == R.id.rbTypeChecklist) type = "checklist";
             else if (rgNoteType.getCheckedRadioButtonId() == R.id.rbTypeImage) type = "image";
 
-            if (type.equals("checklist") || type.equals("image") || !content.isEmpty()) {
+            // Zapis przejdzie tylko i wyłącznie, gdy tytuł nie jest pusty
+            if (!title.isEmpty()) {
                 String col = getSelectedColor(rgColors);
-                if (title.isEmpty()) {
-                    if (type.equals("checklist") && !currentChecklist.isEmpty()) title = currentChecklist.get(0).getText();
-                    else if (type.equals("image")) title = "Image Note";
-                    else title = content.split("\n")[0];
-                    if (title.length() > 20) title = title.substring(0, 20) + "...";
-                }
-
-                final String finalTitle = title;
 
                 if (noteToEdit == null) {
                     Note n = new Note("", title, content, col, btnRectangle.isChecked(), cbPinned.isChecked(), (double) System.currentTimeMillis(), type);
@@ -784,7 +930,7 @@ public class BoardViewActivity extends AppCompatActivity {
                                 lastAddedNoteId = dr.getId();
                                 db.collection("users").document(ownerId).collection("boards").document(boardId).update("noteCount", FieldValue.increment(1));
                                 if (selectedDeadline[0] > 0) {
-                                    scheduleAlarm(dr.getId(), finalTitle, selectedDeadline[0]);
+                                    scheduleAlarm(dr.getId(), title, selectedDeadline[0]);
                                 }
                             });
                 } else {
@@ -806,7 +952,7 @@ public class BoardViewActivity extends AppCompatActivity {
                     db.collection("users").document(ownerId).collection("boards").document(boardId).collection("notes").document(noteToEdit.getId()).set(updatedNote)
                             .addOnSuccessListener(aVoid -> {
                                 if (selectedDeadline[0] > 0) {
-                                    scheduleAlarm(updatedNote.getId(), finalTitle, selectedDeadline[0]);
+                                    scheduleAlarm(updatedNote.getId(), title, selectedDeadline[0]);
                                 } else {
                                     cancelAlarm(updatedNote.getId());
                                 }
@@ -814,7 +960,7 @@ public class BoardViewActivity extends AppCompatActivity {
                 }
                 dialog.dismiss();
             } else {
-                Toast.makeText(this, "Note cannot be empty!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Title is required!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -823,23 +969,22 @@ public class BoardViewActivity extends AppCompatActivity {
 
         Window window = dialog.getWindow();
         if (window != null) {
-            window.getDecorView().setPadding(0, 0, 0, 0);
+            window.getDecorView().setPadding(0, 32, 0, 32);
             window.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
-            window.setGravity(android.view.Gravity.BOTTOM);
+            window.setGravity(android.view.Gravity.CENTER); // Centrujemy na ekranie
             window.getAttributes().windowAnimations = R.style.SlowDialogAnimation;
-            if (isEditMode[0]) {
-                window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-            } else {
-                window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, targetHeight);
-            }
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            // Wysokość dopasowana do treści
+            updateViewMode.run();
         }
+
     }
 
     private void showShareDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_share_board, null);
         builder.setView(view);
-
+        final AlertDialog dialog = builder.create();
         RecyclerView rvMembers = view.findViewById(R.id.rvMembers);
         EditText etSearch = view.findViewById(R.id.etSearchUser);
         Button btnInvite = view.findViewById(R.id.btnInviteMember);
@@ -850,6 +995,20 @@ public class BoardViewActivity extends AppCompatActivity {
             etSearch.setVisibility(View.GONE);
             btnInvite.setVisibility(View.GONE);
         }
+
+        Button btnChangeBoardBg = view.findViewById(R.id.btnChangeBoardBg);
+
+        // Hide the button if the user is just a Viewer
+        if (currentUserRole.equals("Viewer")) {
+            btnChangeBoardBg.setVisibility(View.GONE);
+        }
+
+        btnChangeBoardBg.setOnClickListener(v -> {
+            dialog.dismiss();
+            showBoardBackgroundMenu();
+        });
+
+
 
         List<Invitation> members = new ArrayList<>();
         MemberAdapter memberAdapter = new MemberAdapter(members);
@@ -882,24 +1041,37 @@ public class BoardViewActivity extends AppCompatActivity {
                     });
         });
 
-        final AlertDialog dialog = builder.create();
+
         if (btnBack != null) btnBack.setOnClickListener(v -> dialog.dismiss());
         if (btnClose != null) btnClose.setOnClickListener(v -> dialog.dismiss());
 
         btnInvite.setOnClickListener(v -> {
             String targetEmail = etSearch.getText().toString().trim().toLowerCase();
             if (targetEmail.isEmpty() || targetEmail.equals(mAuth.getCurrentUser().getEmail().toLowerCase())) return;
-            db.collection("users").whereEqualTo("email", targetEmail).get().addOnSuccessListener(q -> {
-                if (!q.isEmpty()) {
-                    db.collection("invitations").add(new Invitation("", boardId, tvBoardName.getText().toString(), ownerId, mAuth.getCurrentUser().getEmail(), targetEmail, "pending", "Viewer", System.currentTimeMillis()))
-                            .addOnSuccessListener(dr -> {
-                                Toast.makeText(this, "Invitation sent!", Toast.LENGTH_SHORT).show();
-                                etSearch.setText("");
+
+            // 1. Sprawdzamy czy zaproszenie już istnieje
+            db.collection("invitations")
+                    .whereEqualTo("boardId", boardId)
+                    .whereEqualTo("toUserEmail", targetEmail)
+                    .get()
+                    .addOnSuccessListener(invites -> {
+                        if (!invites.isEmpty()) {
+                            Toast.makeText(this, "Ten użytkownik został już zaproszony!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 2. Jeśli nie ma, sprawdzamy konto i dopiero wysyłamy
+                            db.collection("users").whereEqualTo("email", targetEmail).get().addOnSuccessListener(q -> {
+                                if (!q.isEmpty()) {
+                                    db.collection("invitations").add(new Invitation("", boardId, tvBoardName.getText().toString(), ownerId, mAuth.getCurrentUser().getEmail(), targetEmail, "pending", "Viewer", System.currentTimeMillis()))
+                                            .addOnSuccessListener(dr -> {
+                                                Toast.makeText(this, "Zaproszenie wysłane!", Toast.LENGTH_SHORT).show();
+                                                etSearch.setText("");
+                                            });
+                                } else {
+                                    Toast.makeText(this, "Nie znaleziono użytkownika.", Toast.LENGTH_SHORT).show();
+                                }
                             });
-                } else {
-                    Toast.makeText(this, "User not found.", Toast.LENGTH_SHORT).show();
-                }
-            });
+                        }
+                    });
         });
 
         dialog.show();
@@ -1051,6 +1223,8 @@ public class BoardViewActivity extends AppCompatActivity {
             }
         }
 
+
+
         @Override
         public int getItemCount() { return items.size(); }
 
@@ -1102,17 +1276,27 @@ public class BoardViewActivity extends AppCompatActivity {
                 updateRoleColor(holder.tvRole, role);
             }
 
-            db.collection("users").whereEqualTo("email", inv.getToUserEmail()).get().addOnSuccessListener(snapshots -> {
-                if (!snapshots.isEmpty()) {
-                    User user = snapshots.getDocuments().get(0).toObject(User.class);
-                    holder.tvName.setText(user.getUsername());
-                    holder.tvAvatar.setText(user.getInitials());
-                    android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
-                    shape.setShape(android.graphics.drawable.GradientDrawable.OVAL);
-                    shape.setColor(Color.parseColor(user.getAvatarColor()));
-                    holder.tvAvatar.setBackground(shape);
-                }
-            });
+            // Bezpiecznik: weryfikacja czy zaproszenie w ogóle posiada maila przed wysłaniem zapytania
+            if (inv.getToUserEmail() != null && !inv.getToUserEmail().isEmpty()) {
+                db.collection("users").whereEqualTo("email", inv.getToUserEmail()).get().addOnSuccessListener(snapshots -> {
+                    if (!snapshots.isEmpty()) {
+                        User user = snapshots.getDocuments().get(0).toObject(User.class);
+                        holder.tvName.setText(user.getUsername() != null ? user.getUsername() : "Unknown");
+                        holder.tvAvatar.setText(user.getInitials() != null ? user.getInitials() : "?");
+                        android.graphics.drawable.GradientDrawable shape = new android.graphics.drawable.GradientDrawable();
+                        shape.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+
+                        // Zabezpieczenie koloru profilu w liście
+                        try {
+                            shape.setColor(Color.parseColor(user.getAvatarColor()));
+                        } catch (Exception e) {
+                            shape.setColor(Color.parseColor("#9E9E9E")); // Domyślny szary dla błędu
+                        }
+
+                        holder.tvAvatar.setBackground(shape);
+                    }
+                });
+            }
 
             if (currentUserId.equals(ownerId) && !role.equals("Owner")) {
                 holder.tvRole.setOnClickListener(v -> {
@@ -1168,10 +1352,14 @@ public class BoardViewActivity extends AppCompatActivity {
     private class ChecklistDialogAdapter extends RecyclerView.Adapter<ChecklistDialogAdapter.ChecklistViewHolder> {
         private List<ChecklistItem> items;
         private boolean isEditMode;
+        private boolean canEdit;
+        private Runnable onCheckToggled;
 
-        public ChecklistDialogAdapter(List<ChecklistItem> items, boolean isEditMode) {
+        public ChecklistDialogAdapter(List<ChecklistItem> items, boolean isEditMode, boolean canEdit, Runnable onCheckToggled) {
             this.items = items;
             this.isEditMode = isEditMode;
+            this.canEdit = canEdit;
+            this.onCheckToggled = onCheckToggled;
         }
 
         public void setEditMode(boolean isEditMode) {
@@ -1197,6 +1385,9 @@ public class BoardViewActivity extends AppCompatActivity {
             et.setHint("Typing...");
             et.setTextSize(18);
             et.setTextColor(Color.parseColor("#333333"));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                et.setTextCursorDrawable(null); // Tu też naprawiamy kursor!
+            }
             try {
                 et.setTypeface(androidx.core.content.res.ResourcesCompat.getFont(parent.getContext(), R.font.cause));
             } catch (Exception ignored) {}
@@ -1229,7 +1420,16 @@ public class BoardViewActivity extends AppCompatActivity {
             holder.et.setFocusableInTouchMode(isEditMode);
             holder.ivDel.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
 
-            holder.cb.setOnCheckedChangeListener((buttonView, isChecked) -> item.setChecked(isChecked));
+            // Blokada klikania w checkbox, jeśli jesteś tylko Viewerem w trybie podglądu
+            holder.cb.setEnabled(isEditMode || canEdit);
+
+            holder.cb.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                item.setChecked(isChecked);
+                // Jeśli użytkownik odhacza zadanie w locie, robimy szybki update do bazy
+                if (!isEditMode && onCheckToggled != null) {
+                    onCheckToggled.run();
+                }
+            });
 
             holder.textWatcher = new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -1256,4 +1456,55 @@ public class BoardViewActivity extends AppCompatActivity {
             }
         }
     }
+    private void showBoardBackgroundMenu() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_board_bg, null);
+        builder.setView(view);
+
+        final AlertDialog dialog = builder.create();
+
+        View.OnClickListener bgClickListener = v -> {
+            String selectedKey = "default";
+            int id = v.getId();
+
+            if (id == R.id.bgMidnight) selectedKey = "midnight";
+            else if (id == R.id.bgBlueprint) selectedKey = "blueprint";
+            else if (id == R.id.bgPastel1) selectedKey = "pastel1";
+            else if (id == R.id.bgPastel2) selectedKey = "pastel2";
+            else if (id == R.id.bgPastel3) selectedKey = "pastel3";
+            else if (id == R.id.bgPastel4) selectedKey = "pastel4";
+            else if (id == R.id.bgPastel5) selectedKey = "pastel5";
+            else if (id == R.id.bgPastel6) selectedKey = "pastel6";
+
+            java.util.Map<String, Object> updateData = new java.util.HashMap<>();
+            updateData.put("boardBackground", selectedKey);
+
+            db.collection("users").document(ownerId).collection("boards").document(boardId)
+                    .set(updateData, com.google.firebase.firestore.SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> Toast.makeText(BoardViewActivity.this, "Tło zmienione!", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(BoardViewActivity.this, "Błąd zmiany tła: " + e.getMessage(), Toast.LENGTH_LONG).show());
+
+            dialog.dismiss();
+        };
+
+        view.findViewById(R.id.bgMidnight).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgBlueprint).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgPastel1).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgPastel2).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgPastel3).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgPastel4).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgPastel5).setOnClickListener(bgClickListener);
+        view.findViewById(R.id.bgPastel6).setOnClickListener(bgClickListener);
+
+        view.findViewById(R.id.btnCloseBgMenu).setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setGravity(android.view.Gravity.BOTTOM);
+        }
+    }
+
 }
