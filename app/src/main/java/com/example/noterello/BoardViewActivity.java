@@ -54,6 +54,8 @@ import java.util.List;
 
 public class BoardViewActivity extends AppCompatActivity {
 
+    private boolean noteDialogShown = false;
+
     private TextView tvBoardName;
     private RecyclerView rvNotes;
     private FloatingActionButton fabAddNote;
@@ -629,6 +631,13 @@ public class BoardViewActivity extends AppCompatActivity {
     }
 
     private void showNoteDialog(final Note noteToEdit) {
+
+        if (noteDialogShown)
+        {
+            System.err.println("Próba otworzenia widoku notatki gdy jest już otworzony");
+            return;
+        }
+
         final long[] selectedDeadline = { noteToEdit != null ? noteToEdit.getDeadline() : 0 };
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
@@ -679,6 +688,7 @@ public class BoardViewActivity extends AppCompatActivity {
         });
 
         final AlertDialog dialog = builder.create();
+        dialog.setOnDismissListener((d) -> { noteDialogShown = false; });
 
         List<ChecklistItem> currentChecklist = new ArrayList<>();
         if (noteToEdit != null && noteToEdit.getChecklist() != null) {
@@ -966,6 +976,7 @@ public class BoardViewActivity extends AppCompatActivity {
 
         btnClose.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+        noteDialogShown = true;
 
         Window window = dialog.getWindow();
         if (window != null) {
